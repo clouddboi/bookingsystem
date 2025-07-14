@@ -12,7 +12,11 @@
     .court-option:hover { background-color: #e9ecef; }
     .court-option.selected { background-color: #d1e7dd; border-color: #0f5132; }
     .court-header { display: flex; justify-content: space-between; }
-    .full-height-row { display: flex; gap: 30px; }
+    .full-height-row {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
     .left-col { flex: 1; }
     .right-col { flex: 2; }
     .time-slot-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 10px; }
@@ -29,6 +33,38 @@
     .row-flex { display: flex; gap: 20px; }
     .calendar-col { flex: 1; }
     .time-col { flex: 1; }
+    @media (max-width: 768px) {
+      .full-height-row {
+        flex-direction: column;
+      }
+
+      .left-col, .right-col {
+        flex: none;
+        width: 100%;
+      }
+
+      .row-flex {
+        flex-direction: column;
+      }
+
+      .calendar-col,
+      .time-col {
+        width: 100%;
+      }
+
+      .calendar, .time-slot-grid {
+        font-size: 0.95rem;
+      }
+
+      .summary-box p {
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -36,7 +72,7 @@
 <%- include('partials/navbar', { activePage: 'booking' }) %>
 
 
-<div class="container mt-5" id="booking">
+<div class="container mt-5 px-3" id="booking">
   <h2>Book a Court</h2>
 
     <ul class="nav nav-tabs mb-3" style="width: fit-content;">

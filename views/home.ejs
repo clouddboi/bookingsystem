@@ -138,18 +138,46 @@
     }
 
     /* Responsive adjustments */
-    @media (max-width: 575px) {
+    @media (max-width: 768px) {
       .hero-buttons {
         flex-direction: column !important;
         gap: 20px !important;
         width: 100%;
         align-items: center;
       }
+
       .hero-btn {
         width: 80%;
         height: auto;
-        padding: 1rem 0;
+        padding: 1rem;
+        font-size: 1rem;
+        flex-direction: row;
+        gap: 12px;
       }
+      .hero-btn img {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0;
+      }
+
+      .hero {
+        padding: 3rem 1rem;
+        
+      }
+
+      .info-section {
+        padding: 2rem 1rem;
+      }
+
+      .info-section h2,
+      .info-section h4 {
+        font-size: 1.4rem;
+      }
+
+      .info-section p {
+        font-size: 1rem;
+      }
+
     }
 
     h1.display-4 {
@@ -177,8 +205,7 @@
   <div class="hero-content">
     <h1 class="display-4 fw-bold">Dewan Badminton Stapok</h1>
     <p class="lead">Your premier indoor sports venue in Kuching</p>
-    <div class="d-flex justify-content-center gap-3 mt-4">
-        <div class="hero-buttons">
+      <div class="hero-buttons mt-4">
             <a href="/booking?sport=Badminton" class="hero-btn btn-blue">
                 <img src="/images/book-icon.png" alt="Book">
                 Book
@@ -189,7 +216,6 @@
             </a>
         </div>
     </div>
-  </div>
 </section>
 
 <section class="info-section">
