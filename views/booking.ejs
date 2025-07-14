@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Court Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    .summary-box, .booking-box, .courts-box { background: #f8f9fa; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .court-option { border: 1px solid #ccc; border-radius: 8px; padding: 15px; background: #fff; cursor: pointer; margin-bottom: 15px; }
+    .court-option:hover { background-color: #e9ecef; }
+    .court-option.selected { background-color: #d1e7dd; border-color: #0f5132; }
+    .court-header { display: flex; justify-content: space-between; }
+    .full-height-row { display: flex; gap: 30px; }
+    .left-col { flex: 1; }
+    .right-col { flex: 2; }
+    .time-slot-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 10px; }
+    .time-slot-option { padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-align: center; cursor: pointer; background: #fff; }
+    .time-slot-option:hover:not(.disabled) { background-color: #e9ecef; }
+    .time-slot-option.selected { background-color: #007bff; color: #fff; border-color: #007bff; }
+    .time-slot-option.disabled { background-color: #ccc !important; cursor: not-allowed !important; pointer-events: none !important; color: #666 !important; }
+    .calendar { border: 1px solid #ccc; border-radius: 10px; padding: 10px; font-size: 14px; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+    .calendar-grid div { padding: 5px; cursor: pointer; }
+    .calendar-grid div:hover:not(.selected-date) { background-color: #dee2e6; border-radius: 4px; }
+    .selected-date { background-color: #198754; color: #fff; border-radius: 4px; }
+    .row-flex { display: flex; gap: 20px; }
+    .calendar-col { flex: 1; }
+    .time-col { flex: 1; }
+  </style>
+</head>
+<body>
+
+<%- include('partials/navbar', { activePage: 'booking' }) %>
+
+
+<div class="container mt-5" id="booking">
+  <h2>Book a Court</h2>
+
+    <ul class="nav nav-tabs mb-3" style="width: fit-content;">
+        <li class="nav-item">
+            <a class="nav-link <%= sport === 'Badminton' ? 'active' : '' %>" href="/booking?sport=Badminton">Badminton</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <%= sport === 'Pickleball' ? 'active' : '' %>" href="/booking?sport=Pickleball">Pickleball</a>
+        </li>
+    </ul>
+
+
+  <div class="full-height-row">
+    <div class="left-col courts-box">
+      <h4>Available Courts</h4>
+      <% courts.forEach(court => { %>
+        <div class="court-option" data-court-id="<%= court.id %>" data-name="<%= court.name %>">
+          <div class="court-header">
+            <strong><%= court.name %></strong>
+            <span class="text-success"><%= court.status %></span>
+          </div>
+          <p>Type: <%= court.type %></p>
+          <p>RM<%= court.price %>/hour</p>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="right-col booking-box">
+      <form id="bookingForm" method="POST" action="/book">
+        <input type="hidden" id="court_id" name="court_id" required>
+        <input type="hidden" id="date" name="date" required>
+
+        <div class="row-flex mb-3">
+          <div class="calendar-col">
+            <label class="form-label fw-bold"><i class="bi bi-calendar3 me-1"></i>Select Date</label>
+            <div id="calendar" class="calendar"></div>
+
+            <label class="form-label fw-bold mt-3"><i class="bi bi-hourglass me-1"></i>Duration (Hours)</label>
+            <select id="duration" name="duration" class="form-select" required>
+              <option value="1">1 Hour</option>
+              <option value="2">2 Hours</option>
+              <option value="3">3 Hours</option>
+            </select>
+          </div>
+
+          <div class="time-col">
+            <label class="form-label fw-bold"><i class="bi bi-clock me-1"></i>Choose Time Slot</label>
+            <h6>Morning</h6>
+            <div class="time-slot-grid" id="morningSlots"></div>
+            <h6>Afternoon</h6>
+            <div class="time-slot-grid" id="afternoonSlots"></div>
+            <h6>Evening</h6>
+            <div class="time-slot-grid" id="eveningSlots"></div>
+          </div>
+        </div>
+
+        <input type="hidden" id="start_time" name="start_time" required>
+        <input type="hidden" id="end_time" name="end_time">
+
+        <h5 class="mt-4"><i class="bi bi-person me-1"></i>Player Info</h5>
+        <div class="row mb-4">
+          <div class="col-md-4"><input type="text" name="customer_name" class="form-control" placeholder="Full Name" required></div>
+          <div class="col-md-4"><input type="email" name="email" class="form-control" placeholder="Email"></div>
+          <div class="col-md-4"><input type="tel" name="phone" class="form-control" placeholder="Phone Number"></div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Confirm Booking</button>
+        <button type="reset" class="btn btn-secondary">Clear</button>
+      </form>
+
+      <div class="summary-box mt-4">
+        <h5>Booking Summary</h5>
+        <p><strong>Court:</strong> <span id="summaryCourt">Not selected</span></p>
+        <p><strong>Date:</strong> <span id="summaryDate">Not selected</span></p>
+        <p><strong>Start Time:</strong> <span id="summaryTime">Not selected</span></p>
+        <p><strong>Duration:</strong> <span id="summaryDuration">0 Hour</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const summaryCourt = document.getElementById("summaryCourt");
+  const summaryDate = document.getElementById("summaryDate");
+  const summaryTime = document.getElementById("summaryTime");
+  const summaryDuration = document.getElementById("summaryDuration");
+  const courtIdInput = document.getElementById("court_id");
+  const dateInput = document.getElementById("date");
+  const startTimeInput = document.getElementById("start_time");
+  const endTimeInput = document.getElementById("end_time");
+  const durationInput = document.getElementById("duration");
+
+  const courts = document.querySelectorAll(".court-option");
+  courts.forEach(el => {
+    el.onclick = () => {
+      courts.forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      courtIdInput.value = el.getAttribute("data-court-id");
+      summaryCourt.textContent = el.getAttribute("data-name");
+      disableBookedSlots(courtIdInput.value, dateInput.value);
+    };
+  });
+
+  // Calendar
+  let selectedDate = new Date();
+  const calendar = document.getElementById("calendar");
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    function renderCalendar(date) {
+    calendar.innerHTML = "";
+    const year = date.getFullYear(), month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    const header = document.createElement("div");
+    header.className = "calendar-header";
+    header.innerHTML = `<button onclick="changeMonth(-1)">&lt;</button><strong>${monthNames[month]} ${year}</strong><button onclick="changeMonth(1)">&gt;</button>`;
+    calendar.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "calendar-grid";
+    ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => grid.innerHTML += `<div><strong>${d}</strong></div>`);
+
+    for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+
+    for (let d = 1; d <= lastDate; d++) {
+      const el = document.createElement("div");
+      el.textContent = d;
+
+      if (date.getDate() === d && date.getMonth() === month && date.getFullYear() === year) {
+        el.classList.add("selected-date");
+      }
+
+      el.onclick = () => {
+        selectedDate = new Date(year, month, d);
+        renderCalendar(selectedDate);
+
+        // Build date string manually to avoid timezone issues
+        const y = selectedDate.getFullYear();
+        const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        dateInput.value = y + '-' + m + '-' + day;
+
+        summaryDate.textContent = selectedDate.toDateString();
+        disableBookedSlots(courtIdInput.value, dateInput.value);
+      };
+
+      grid.appendChild(el);
+    }
+
+    calendar.appendChild(grid);
+  }
+  window.changeMonth = offset => { selectedDate.setMonth(selectedDate.getMonth() + offset); renderCalendar(selectedDate); };
+  renderCalendar(selectedDate);
+
+  const slots = {
+    morning: ["08:00", "09:00", "10:00", "11:00"],
+    afternoon: ["12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+    evening: ["18:00", "19:00", "20:00", "21:00"]
+  };
+
+  function renderSlots(containerId, times) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    times.forEach(time => {
+      const div = document.createElement("div");
+      div.className = "time-slot-option";
+      div.textContent = time;
+      div.onclick = () => {
+        if (div.classList.contains("disabled")) return;
+        document.querySelectorAll(".time-slot-option").forEach(el => el.classList.remove("selected"));
+        div.classList.add("selected");
+        startTimeInput.value = time;
+        summaryTime.textContent = time;
+        updateEndTime();
+      };
+      container.appendChild(div);
+    });
+  }
+
+  renderSlots("morningSlots", slots.morning);
+  renderSlots("afternoonSlots", slots.afternoon);
+  renderSlots("eveningSlots", slots.evening);
+
+  durationInput.addEventListener("change", () => {
+    summaryDuration.textContent = `${durationInput.value} Hour`;
+    updateEndTime();
+  });
+
+  function updateEndTime() {
+    const start = startTimeInput.value;
+    const duration = parseInt(durationInput.value);
+    if (start && duration) {
+      const [hours, minutes] = start.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes);
+      date.setHours(date.getHours() + duration);
+      const endHours = String(date.getHours()).padStart(2, '0');
+      const endMinutes = String(date.getMinutes()).padStart(2, '0');
+      endTimeInput.value = `${endHours}:${endMinutes}`;
+    }
+  }
+});
+
+document.getElementById('bookingForm').addEventListener('submit', function(event) {
+  const courtId = document.getElementById('court_id').value.trim();
+  const date = document.getElementById('date').value.trim();
+  const startTime = document.getElementById('start_time').value.trim();
+  const duration = document.getElementById('duration').value.trim();
+  const customerName = this.customer_name.value.trim();
+  const email = this.email.value.trim();
+  const phone = this.phone.value.trim();
+
+  if (!courtId) {
+    alert('Please select a court.');
+    event.preventDefault();
+    return;
+  }
+  if (!date) {
+    alert('Please select a date.');
+    event.preventDefault();
+    return;
+  }
+  if (!startTime) {
+    alert('Please select a starting time.');
+    event.preventDefault();
+    return;
+  }
+  if (!duration) {
+    alert('Please select a duration.');
+    event.preventDefault();
+    return;
+  }
+  if (!customerName) {
+    alert('Please enter your name.');
+    event.preventDefault();
+    return;
+  }
+  if (!email && !phone) {
+    alert('Please enter either an email or phone number.');
+    event.preventDefault();
+    return;
+  }
+});
+
+const courtOptions = document.querySelectorAll(".court-option");
+const courtIdInput = document.getElementById("court_id");
+const dateInput = document.getElementById("date");
+
+courtOptions.forEach(el => {
+  el.addEventListener("click", () => {
+    courtOptions.forEach(c => c.classList.remove("selected"));
+    el.classList.add("selected");
+    courtIdInput.value = el.getAttribute("data-court-id"); // important: sets the hidden input value
+    disableBookedSlots(el.getAttribute("data-court-id"), dateInput.value);
+  });
+});
+
+function disableBookedSlots(courtId, date) {
+  if (!courtId || !date) return;
+
+  fetch(`/booked-slots?court_id=${courtId}&date=${date}`)
+    .then(res => res.json())
+    .then(bookings => {
+      // bookings contains {start_time, end_time}
+      // Disable all slots that overlap any existing booking
+
+      // Parse bookings to minutes for easy comparison
+      const bookingsMinutes = bookings.map(b => {
+        const startParts = b.start_time.split(':');
+        const endParts = b.end_time.split(':');
+        return {
+          start: parseInt(startParts[0]) * 60 + parseInt(startParts[1]),
+          end: parseInt(endParts[0]) * 60 + parseInt(endParts[1])
+        };
+      });
+
+      document.querySelectorAll(".time-slot-option").forEach(el => {
+        const [h, m] = el.textContent.split(':').map(Number);
+        const slotStart = h * 60 + m;
+
+        // We need to disable slot if the slot time overlaps any booking for the duration selected
+        // For disabling, assume minimum duration 1 hour — so check slotStart for overlap with any booking range
+        let isDisabled = false;
+        for (let bk of bookingsMinutes) {
+          if (!(slotStart + 60 <= bk.start || slotStart >= bk.end)) {
+            // overlap found
+            isDisabled = true;
+            break;
+          }
+        }
+        if (isDisabled) {
+          el.classList.add("disabled");
+          el.classList.remove("selected");
+        } else {
+          el.classList.remove("disabled");
+        }
+      });
+    });
+}
+</script>
+
+</body>
+</html>

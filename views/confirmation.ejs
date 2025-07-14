@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Booking Confirmation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<%- include('partials/navbar', { activePage: 'booking' }) %>
+
+  <div class="container mt-5">
+    <h2>Booking Confirmation</h2>
+    <div class="card p-4">
+      <p><strong>Booking ID:</strong> <%= booking.id %></p>
+      <p><strong>Court:</strong> <%= booking.court_name %> (<%= booking.sport %>)</p>
+      <p><strong>Date:</strong> <%= booking.date.toISOString().split('T')[0] %></p>
+      <p><strong>Start Time:</strong> <%= booking.start_time %></p>
+      <p><strong>End Time:</strong> <%= booking.end_time %></p>
+      <p><strong>Duration:</strong> <%= booking.duration %> hour(s)</p>
+      <p><strong>Name:</strong> <%= booking.customer_name %></p>
+      <p><strong>Email:</strong> <%= booking.email || 'N/A' %></p>
+      <p><strong>Phone:</strong> <%= booking.phone || 'N/A' %></p>
+      <a href="/" class="btn btn-primary mt-3">Back to Booking</a>
+    </div>
+  </div>
+  
+</body>
+</html>

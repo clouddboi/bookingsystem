@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dewan Badminton Stapok - Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .hero {
+      background: url('/images/hero-image.jpg') no-repeat center center/cover;
+      height: 50vh;    /* half the viewport height */
+      max-height: 500px; /* max 400px tall */
+      min-height: 300px; /* minimum height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+      position: relative;
+      padding: 2rem 1rem;      /* Added padding for spacing */
+      box-sizing: border-box;  /* Include padding in height */
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-buttons {
+      display: flex !important;
+      gap: 40px !important;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .hero-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 160px;
+      height: 160px;
+      border: 3px solid;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .hero-btn img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 10px;
+    }
+
+    /* Blue button */
+    .btn-blue {
+      background-color: #e0f0ff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .btn-blue:hover {
+      background-color: #cde5ff;
+    }
+
+    /* Yellow button */
+    .btn-yellow {
+      background-color: #fff7d1;
+      border-color: #ffc107;
+      color: #ffc107;
+    }
+
+    .btn-yellow:hover {
+      background-color: #ffef99;
+    }
+
+    .outline-btn-blue {
+      border: 2px solid #0d6efd;
+      color: #0d6efd;
+      background-color: transparent;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .outline-btn-blue:hover {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .outline-btn-yellow {
+      border: 2px solid #ffc107;
+      color: #ffc107;
+      background-color: transparent;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .outline-btn-yellow:hover {
+      background-color: #ffc107;
+      color: white;
+    }
+
+    .info-section {
+      padding: 3rem 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .icon-img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    footer {
+      background-color: #212529;
+      color: white;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 575px) {
+      .hero-buttons {
+        flex-direction: column !important;
+        gap: 20px !important;
+        width: 100%;
+        align-items: center;
+      }
+      .hero-btn {
+        width: 80%;
+        height: auto;
+        padding: 1rem 0;
+      }
+    }
+
+    h1.display-4 {
+      font-size: clamp(1.8rem, 4vw, 3.5rem);
+    }
+
+    p.lead {
+      font-size: clamp(1rem, 2vw, 1.5rem);
+    }
+
+    /* Make images responsive */
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/navbar', { activePage: 'home' }) %>
+
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="display-4 fw-bold">Dewan Badminton Stapok</h1>
+    <p class="lead">Your premier indoor sports venue in Kuching</p>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <div class="hero-buttons">
+            <a href="/booking?sport=Badminton" class="hero-btn btn-blue">
+                <img src="/images/book-icon.png" alt="Book">
+                Book
+            </a>
+            <a href="/staff-login" class="hero-btn btn-yellow">
+                <img src="/images/staff-icon.png" alt="Staff Login">
+                Staff Log-in
+            </a>
+        </div>
+    </div>
+  </div>
+</section>
+
+<section class="info-section">
+  <h2>About Us</h2>
+  <p>Located in the heart of Kuching, Dewan Badminton Stapok offers high-quality courts for badminton, pickleball, and more. We are committed to providing the best facilities and service to all our customers.</p>
+  
+  <h4 class="mt-5">Contact Information</h4>
+  <p><strong>Location:</strong> Jalan Stapok, Kuching, Sarawak</p>
+  <p><strong>Email:</strong> contact@stapokbadminton.com</p>
+  <p><strong>Phone:</strong> +60 12-345 6789</p>
+</section>
+
+<footer class="bg-dark text-white text-center py-3">
+  &copy; 2025 Dewan Badminton Stapok. All rights reserved.
+</footer>
+
+</body>
+</html>
