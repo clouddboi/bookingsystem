@@ -174,12 +174,16 @@ app.get('/confirmation/:bookingId', async (req, res) => {
     if (!booking) {
       return res.status(404).send('Booking not found');
     }
+
+    booking.formattedDate = new Date(booking.date).toISOString().split('T')[0];
+
     res.render('confirmation', { booking });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error loading confirmation');
   }
 });
+
 
 app.get('/booked-slots', async (req, res) => {
   const courtId = req.query.court_id;
