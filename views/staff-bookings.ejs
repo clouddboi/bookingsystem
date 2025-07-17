@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Bookings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .fixed-card {
+      border-radius: 12px;
+      background-color: #f8f9fa;
+      margin-bottom: 20px;
+      padding: 1.5rem;
+    }
+    .search-filter-row {
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/staff-navbar') %>
+
+<div class="container mt-4">
+
+  <h3 class="mb-4">Manage Bookings</h3>
+
+  <form method="GET" action="/staff/bookings" class="row search-filter-row align-items-end">
+    <div class="col-md-3">
+      <label for="date-filter" class="form-label">Filter by Date</label>
+      <input type="date" id="date-filter" name="date" value="<%= filterDate %>" class="form-control" />
+    </div>
+    <div class="col-md-5">
+      <label for="search-query" class="form-label">Search by Name, Email or Phone</label>
+      <input type="text" id="search-query" name="search" value="<%= search %>" class="form-control" placeholder="Enter name, email or phone" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+      <a href="/staff/bookings" class="btn btn-outline-secondary flex-grow-1">Reset Filters</a>
+    </div>
+  </form>
+
+  <div class="card fixed-card">
+    <h5>Bookings List</h5>
+    <% if (bookings.length === 0) { %>
+      <p>No bookings found.</p>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Court</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Time Until Booking</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bookings
+              .slice()
+              .sort((a, b) => new Date(b.date) - new Date(a.date)) // descending by date
+              .forEach(booking => { 
+                const startDateTime = new Date(booking.date + 'T' + booking.start_time);
+                const now = new Date();
+                let timeUntil = '';
+                const diffMs = startDateTime - now;
+                if (diffMs > 0) {
+                  const diffMins = Math.floor(diffMs / (1000 * 60));
+                  const hours = Math.floor(diffMins / 60);
+                  const mins = diffMins % 60;
+                  timeUntil = (hours > 0 ? hours + 'h ' : '') + mins + 'm left';
+                } else {
+                  timeUntil = 'Ongoing or past';
+                }
+            %>
+              <tr>
+                <td><%= booking.date %></td>
+                <td><%= booking.start_time %> - <%= booking.end_time %></td>
+                <td><%= booking.court_id ? booking.court_id.name : 'N/A' %></td>
+                <td><%= booking.customer_name %></td>
+                <td><%= booking.email %></td>
+                <td><%= booking.phone %></td>
+                <td><%= timeUntil %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

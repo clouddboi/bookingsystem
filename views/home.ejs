@@ -6,11 +6,26 @@
   <title>Dewan Badminton Stapok - Home</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1b3a1b; /* Dark green background for entire page */
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Hero Section */
     .hero {
       background: url('/images/hero-image.jpg') no-repeat center center/cover;
-      height: 50vh;    /* half the viewport height */
-      max-height: 500px; /* max 400px tall */
-      min-height: 300px; /* minimum height */
+      height: 55vh;
+      max-height: 600px;
+      min-height: 350px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -18,15 +33,15 @@
       text-align: center;
       color: white;
       position: relative;
-      padding: 2rem 1rem;      /* Added padding for spacing */
-      box-sizing: border-box;  /* Include padding in height */
+      padding: 3rem 2rem;
+      box-sizing: border-box;
     }
 
     .hero-overlay {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.6);
       z-index: 1;
     }
 
@@ -36,10 +51,10 @@
     }
 
     .hero-buttons {
-      display: flex !important;
-      gap: 40px !important;
+      display: flex;
+      gap: 50px;
       justify-content: center;
-      margin-top: 30px;
+      margin-top: 40px;
     }
 
     .hero-btn {
@@ -47,152 +62,199 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 160px;
-      height: 160px;
+      width: 180px;
+      height: 180px;
       border: 3px solid;
-      border-radius: 12px;
+      border-radius: 14px;
       text-decoration: none;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 700;
+      font-size: 22px;
       transition: all 0.2s ease;
+      color: inherit;
+      padding: 10px;
+      background-color: rgba(255 255 255 / 0.85);
+      color: #1b3a1b;
     }
 
     .hero-btn img {
-      width: 50px;
-      height: 50px;
-      margin-bottom: 10px;
+      width: 60px;
+      height: 60px;
+      margin-bottom: 15px;
     }
 
-    /* Blue button */
     .btn-blue {
-      background-color: #e0f0ff;
       border-color: #007bff;
-      color: #007bff;
     }
 
     .btn-blue:hover {
       background-color: #cde5ff;
+      color: #007bff;
     }
 
-    /* Yellow button */
     .btn-yellow {
-      background-color: #fff7d1;
       border-color: #ffc107;
-      color: #ffc107;
     }
 
     .btn-yellow:hover {
       background-color: #ffef99;
+      color: #b38600;
     }
 
-    .outline-btn-blue {
-      border: 2px solid #0d6efd;
-      color: #0d6efd;
-      background-color: transparent;
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      transition: all 0.3s ease;
+    h1.display-4 {
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 900;
+      text-shadow: 0 0 5px rgba(0,0,0,0.7);
     }
 
-    .outline-btn-blue:hover {
-      background-color: #0d6efd;
-      color: white;
+    p.lead {
+      font-size: clamp(1.3rem, 2.5vw, 1.9rem);
+      font-weight: 600;
+      text-shadow: 0 0 3px rgba(0,0,0,0.5);
     }
 
-    .outline-btn-yellow {
-      border: 2px solid #ffc107;
-      color: #ffc107;
-      background-color: transparent;
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      transition: all 0.3s ease;
+    h3 {
+      font-size: 2rem;
+      font-weight: 800;
     }
 
-    .outline-btn-yellow:hover {
-      background-color: #ffc107;
-      color: white;
-    }
-
+    /* FULL WIDTH dark green background for info-section */
     .info-section {
-      padding: 3rem 1rem;
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: center;
+      width: 100vw;
+      background-color: #3a6b3a;
+      margin: 0;
+      padding: 4rem 0;
+      box-sizing: border-box;
     }
 
-    .icon-img {
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
-      vertical-align: middle;
+    /* Container to constrain card width */
+    .info-section .container {
+      max-width: 1600px;
+      padding-left: 15px;
+      padding-right: 15px;
+      margin: 0 auto;
+    }
+
+    .info-box {
+      text-align: start;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background-color: rgba(255 255 255 / 0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      color: white;
+    }
+
+    .green-bg {
+      background: linear-gradient(to bottom right, #2e7d32cc, #1b5e20cc);
+    }
+
+    .yellow-bg {
+      background: linear-gradient(to bottom right, #ffeb3bcc, #fbc02dcc);
+      color: #1b3a1b;
+      font-weight: 700;
+    }
+
+    .dark-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 0;
+      border-radius: 12px;
+    }
+
+    .info-box * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .map-box iframe {
+      width: 100%;
+      height: 250px;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .social-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .social-links li {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      justify-content: flex-end;
+    }
+
+    .social-links img {
+      width: 64px;
+      height: 64px;
+      margin-left: 20px;
+    }
+
+    .socials-col {
+      text-align: right;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
 
     footer {
-      background-color: #212529;
+      background-color: #133213;
       color: white;
       text-align: center;
-      padding: 1rem 0.5rem;
-      font-size: 0.9rem;
+      padding: 1.25rem 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      box-shadow: 0 -3px 10px #0a220a88;
     }
 
-    /* Responsive adjustments */
+    /* Responsive */
     @media (max-width: 768px) {
       .hero-buttons {
-        flex-direction: column !important;
-        gap: 20px !important;
-        width: 100%;
+        flex-direction: column;
+        gap: 25px;
         align-items: center;
       }
 
       .hero-btn {
-        width: 80%;
+        width: 85%;
         height: auto;
-        padding: 1rem;
-        font-size: 1rem;
+        padding: 1.2rem;
+        font-size: 1.3rem;
         flex-direction: row;
-        gap: 12px;
+        gap: 16px;
+        background-color: #fff;
+        color: #1b3a1b;
       }
+
       .hero-btn img {
-        width: 36px;
-        height: 36px;
+        width: 42px;
+        height: 42px;
         margin-bottom: 0;
       }
 
-      .hero {
-        padding: 3rem 1rem;
-        
+      .social-links li {
+        justify-content: flex-start;
       }
 
-      .info-section {
-        padding: 2rem 1rem;
+      .socials-col {
+        align-items: flex-start;
+        text-align: left;
       }
 
-      .info-section h2,
-      .info-section h4 {
-        font-size: 1.4rem;
+      .info-box {
+        background-color: rgba(255 255 255 / 0.15);
+        color: white;
       }
-
-      .info-section p {
-        font-size: 1rem;
-      }
-
-    }
-
-    h1.display-4 {
-      font-size: clamp(1.8rem, 4vw, 3.5rem);
-    }
-
-    p.lead {
-      font-size: clamp(1rem, 2vw, 1.5rem);
-    }
-
-    /* Make images responsive */
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
     }
   </style>
 </head>
@@ -205,30 +267,67 @@
   <div class="hero-content">
     <h1 class="display-4 fw-bold">Dewan Badminton Stapok</h1>
     <p class="lead">Your premier indoor sports venue in Kuching</p>
-      <div class="hero-buttons mt-4">
-            <a href="/booking?sport=Badminton" class="hero-btn btn-blue">
-                <img src="/images/book-icon.png" alt="Book">
-                Book
-            </a>
-            <a href="/staff-login" class="hero-btn btn-yellow">
-                <img src="/images/staff-icon.png" alt="Staff Login">
-                Staff Log-in
-            </a>
-        </div>
+    <div class="hero-buttons mt-4">
+      <a href="/booking?sport=Badminton" class="hero-btn btn-blue">
+        <img src="/images/book-icon.png" alt="Book" />
+        Book
+      </a>
+      <a href="/staff-login" class="hero-btn btn-yellow">
+        <img src="/images/staff-icon.png" alt="Staff Login" />
+        Staff Log-in
+      </a>
     </div>
+  </div>
 </section>
 
 <section class="info-section">
-  <h2>About Us</h2>
-  <p>Located in the heart of Kuching, Dewan Badminton Stapok offers high-quality courts for badminton, pickleball, and more. We are committed to providing the best facilities and service to all our customers.</p>
-  
-  <h4 class="mt-5">Contact Information</h4>
-  <p><strong>Location:</strong> Jalan Stapok, Kuching, Sarawak</p>
-  <p><strong>Email:</strong> contact@stapokbadminton.com</p>
-  <p><strong>Phone:</strong> +60 12-345 6789</p>
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-12 info-box green-bg dark-overlay">
+        <h3>About</h3>
+        <p>
+          Located in the heart of Kuching, Dewan Badminton Stapok offers high-quality courts for badminton and more.
+          Whether you're a casual player or a competitive athlete, we provide a welcoming environment for everyone.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4 info-box green-bg dark-overlay">
+        <h3>Location</h3>
+        <div class="map-box">
+          <iframe src="https://www.google.com/maps/embed?..." allowfullscreen loading="lazy"></iframe>
+        </div>
+        <p>Lot 581, Block 207, Jalan Ensing, Taman Stapok, 93250 Kuching, Sarawak</p>
+      </div>
+
+      <div class="col-md-4 info-box yellow-bg">
+        <h3>Operating Hours</h3>
+        <p>Mon - Sun: 8:00 AM - 12:00 AM</p>
+      </div>
+
+      <div class="col-md-4 info-box yellow-bg socials-col">
+        <h3>Socials</h3>
+        <ul class="social-links">
+          <li>
+            <a href="https://www.facebook.com/people/Stapok-Badminton-Court/100094057419605/?sk=about">Stapok Badminton Court</a>
+            <img src="/images/facebook-icon.png" alt="Facebook" />
+          </li>
+          <li>
+            <a href="#">Coming Soon!</a>
+            <img src="/images/instagram-icon.png" alt="Instagram" />
+          </li>
+          <li>
+            <a href="#">Coming Soon!</a>
+            <img src="/images/twitter-icon.png" alt="Twitter" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </section>
 
-<footer class="bg-dark text-white text-center py-3">
+<footer>
   &copy; 2025 Dewan Badminton Stapok. All rights reserved.
 </footer>
 

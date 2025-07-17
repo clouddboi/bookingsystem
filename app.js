@@ -150,6 +150,97 @@ app.get('/staff/dashboard', async (req, res) => {
   }
 });
 
+// View and manage courts in one page
+app.get('/staff/courts', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/staff-login');
+  }
+
+  try {
+    const courts = await Court.find({});
+    res.render('staff-courts', { courts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading courts');
+  }
+});
+
+// Add or update court
+app.post('/staff/courts/save', async (req, res) => {
+  const { courtId, name, sport, price, status } = req.body;
+
+  try {
+    if (courtId) {
+      // Edit existing court
+      await Court.findByIdAndUpdate(courtId, { name, sport, price, status });
+    } else {
+      // Add new court
+      const newCourt = new Court({ name, sport, price, status });
+      await newCourt.save();
+    }
+
+    res.redirect('/staff/courts');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error saving court');
+  }
+});
+
+// Staff bookings route with optional query params for date and search
+app.get('/staff/bookings', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/staff-login');
+  }
+
+  const dateFilter = req.query.date || ''; // No default date filter
+  const search = req.query.search ? req.query.search.trim() : '';
+
+  try {
+    // Build query with search first
+    const query = {
+      $or: [
+        { customer_name: new RegExp(search, 'i') },
+        { email: new RegExp(search, 'i') },
+        { phone: new RegExp(search, 'i') }
+      ]
+    };
+
+    // Add date filter only if dateFilter is not empty
+    if (dateFilter) {
+      query.date = dateFilter;
+    }
+
+    const bookingsRaw = await Booking.find(query).populate('court_id').lean();
+
+    const now = new Date();
+    const bookings = bookingsRaw.map(b => {
+      const startDateTime = new Date(`${b.date}T${b.start_time}:00`);
+      let timeUntil = '';
+
+      const diffMs = startDateTime - now;
+      if (diffMs > 0) {
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const hrs = Math.floor(diffMins / 60);
+        const mins = diffMins % 60;
+        timeUntil = (hrs > 0 ? `${hrs}h ` : '') + `${mins}m left`;
+      } else {
+        timeUntil = 'Started/Past';
+      }
+
+      return { ...b, timeUntil };
+    });
+
+    res.render('staff-bookings', {
+      bookings,
+      filterDate: dateFilter,
+      search
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading bookings');
+  }
+});
+
 app.post('/staff/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/staff-login');
