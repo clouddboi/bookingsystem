@@ -203,23 +203,33 @@ document.addEventListener("DOMContentLoaded", () => {
       const el = document.createElement("div");
       el.textContent = d;
 
+      const thisDate = new Date(year, month, d);
+      const today = new Date();
+      thisDate.setHours(0,0,0,0);
+      today.setHours(0,0,0,0);
+
       if (date.getDate() === d && date.getMonth() === month && date.getFullYear() === year) {
         el.classList.add("selected-date");
       }
 
-      el.onclick = () => {
-        selectedDate = new Date(year, month, d);
-        renderCalendar(selectedDate);
+      if (thisDate < today) {
+        el.style.color = "#999";
+        el.style.cursor = "not-allowed";
+        el.title = "Past date - cannot select";
+      } else {
+        el.onclick = () => {
+          selectedDate = new Date(year, month, d);
+          renderCalendar(selectedDate);
 
-        // Build date string manually to avoid timezone issues
-        const y = selectedDate.getFullYear();
-        const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedDate.getDate()).padStart(2, '0');
-        dateInput.value = y + '-' + m + '-' + day;
+          const y = selectedDate.getFullYear();
+          const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+          const day = String(selectedDate.getDate()).padStart(2, '0');
+          dateInput.value = y + '-' + m + '-' + day;
 
-        summaryDate.textContent = selectedDate.toDateString();
-        disableBookedSlots(courtIdInput.value, dateInput.value);
-      };
+          summaryDate.textContent = selectedDate.toDateString();
+          disableBookedSlots(courtIdInput.value, dateInput.value);
+        };
+      }
 
       grid.appendChild(el);
     }
@@ -279,6 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.getElementById('bookingForm').addEventListener('submit', function(event) {
+
   const courtId = document.getElementById('court_id').value.trim();
   const date = document.getElementById('date').value.trim();
   const startTime = document.getElementById('start_time').value.trim();
@@ -286,6 +297,21 @@ document.getElementById('bookingForm').addEventListener('submit', function(event
   const customerName = this.customer_name.value.trim();
   const email = this.email.value.trim();
   const phone = this.phone.value.trim();
+
+  // *** Add this check here ***
+  if (date) {
+    const selectedDate = new Date(date);
+    const today = new Date();
+    selectedDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    if (selectedDate < today) {
+      alert('You cannot select a past date.');
+      event.preventDefault();
+      return;
+    }
+  }
+
+  // ...rest of your existing validation code
 
   if (!courtId) {
     alert('Please select a court.');
@@ -338,10 +364,6 @@ function disableBookedSlots(courtId, date) {
   fetch(`/booked-slots?court_id=${courtId}&date=${date}`)
     .then(res => res.json())
     .then(bookings => {
-      // bookings contains {start_time, end_time}
-      // Disable all slots that overlap any existing booking
-
-      // Parse bookings to minutes for easy comparison
       const bookingsMinutes = bookings.map(b => {
         const startParts = b.start_time.split(':');
         const endParts = b.end_time.split(':');
@@ -351,20 +373,32 @@ function disableBookedSlots(courtId, date) {
         };
       });
 
+      const today = new Date();
+      const selectedDate = new Date(date);
+      selectedDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      const isToday = selectedDate.getTime() === today.getTime();
+
+      const now = new Date();
+
       document.querySelectorAll(".time-slot-option").forEach(el => {
         const [h, m] = el.textContent.split(':').map(Number);
         const slotStart = h * 60 + m;
 
-        // We need to disable slot if the slot time overlaps any booking for the duration selected
-        // For disabling, assume minimum duration 1 hour — so check slotStart for overlap with any booking range
-        let isDisabled = false;
-        for (let bk of bookingsMinutes) {
-          if (!(slotStart + 60 <= bk.start || slotStart >= bk.end)) {
-            // overlap found
+        // Disable if overlaps existing booking
+        let isDisabled = bookingsMinutes.some(bk => !(slotStart + 60 <= bk.start || slotStart >= bk.end));
+
+        // Also disable if the slot time has passed for today
+        if (isToday) {
+          // Compare current time in minutes from midnight
+          const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+          if (slotStart <= nowMinutes) {
             isDisabled = true;
-            break;
           }
         }
+
         if (isDisabled) {
           el.classList.add("disabled");
           el.classList.remove("selected");

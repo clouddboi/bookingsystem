@@ -53,10 +53,20 @@
     <div class="card-grid mt-3">
       <% courts.forEach(court => { %>
         <div class="court-card">
-          <button class="btn btn-sm btn-outline-secondary edit-btn"
-                  onclick='populateForm("<%= court._id %>", "<%= court.name %>", "<%= court.sport %>", "<%= court.price %>", "<%= court.status %>")'>
-            Edit
-          </button>
+          <div class="d-flex justify-content-end gap-1 mb-2">
+            <!-- Edit button -->
+            <button class="btn btn-sm btn-outline-secondary"
+                    onclick='populateForm("<%= court._id %>", "<%= court.name %>", "<%= court.sport %>", "<%= court.price %>", "<%= court.status %>")'>
+              Edit
+            </button>
+
+            <!-- Delete form -->
+            <form method="POST" action="/staff/courts/delete" onsubmit="return confirm('Are you sure you want to delete this court?')">
+              <input type="hidden" name="courtId" value="<%= court._id %>">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </div>
+
           <h6><%= court.name %></h6>
           <p class="mb-1 text-muted"><%= court.sport %></p>
           <p class="mb-1">RM <%= court.price.toFixed(2) %></p>

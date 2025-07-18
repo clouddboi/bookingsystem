@@ -84,6 +84,7 @@ app.get('/staff/dashboard', async (req, res) => {
 
   const username = req.session.user.username;
   const todayDate = moment().format('YYYY-MM-DD');
+  const todayDay = moment().format('dddd'); // e.g., "Monday", "Tuesday", etc.
   const weekStart = moment().startOf('isoWeek').format('YYYY-MM-DD');
   const weekEnd = moment().endOf('isoWeek').format('YYYY-MM-DD');
 
@@ -91,6 +92,28 @@ app.get('/staff/dashboard', async (req, res) => {
     const todayBookings = await Booking.find({ date: todayDate }).populate('court_id');
     const todayProfit = todayBookings.reduce((sum, b) => sum + (b.court_id ? b.duration * b.court_id.price : 0), 0);
     const todayCount = todayBookings.length;
+    // Define the hour labels you want, e.g. 8 AM to 9 PM
+    const todayHourLabels = [];
+    for (let h = 8; h <= 21; h++) {
+      let label = h <= 12 ? `${h}am` : `${h - 12}pm`;
+      todayHourLabels.push(label);
+    }
+
+    // Initialize counts array with zeros for each hour slot
+    const todayBookingCounts = new Array(todayHourLabels.length).fill(0);
+
+    // Count how many bookings start in each hour slot
+    todayBookings.forEach(b => {
+      if (b.start_time) {
+        // Assume start_time is "HH:mm" string
+        const hour = parseInt(b.start_time.split(':')[0], 10);
+        // We only count if hour is between 8 and 21 inclusive
+        if (hour >= 8 && hour <= 21) {
+          const index = hour - 8;
+          todayBookingCounts[index]++;
+        }
+      }
+    });
 
     const weekBookings = await Booking.find({
       date: { $gte: weekStart, $lte: weekEnd }
@@ -98,6 +121,22 @@ app.get('/staff/dashboard', async (req, res) => {
 
     const weekProfit = weekBookings.reduce((sum, b) => sum + (b.court_id ? b.duration * b.court_id.price : 0), 0);
     const weekCount = weekBookings.length;
+
+    const profitByDay = {};
+
+    for (let i = 0; i < 7; i++) {
+      const date = moment(weekStart).add(i, 'days').format('YYYY-MM-DD');
+      profitByDay[date] = 0;
+    }
+
+    weekBookings.forEach(b => {
+      if (b.court_id) {
+        profitByDay[b.date] += b.duration * b.court_id.price;
+      }
+    });
+
+    const profitChartLabels = Object.keys(profitByDay).map(d => moment(d).format('ddd'));
+    const profitChartData = Object.values(profitByDay);
 
     const badmintonBookings = await Booking.find({ date: { $gte: todayDate } })
       .populate({
@@ -136,13 +175,18 @@ app.get('/staff/dashboard', async (req, res) => {
     res.render('staff-dashboard', {
       username: username,
       todayDate: moment(todayDate).format('MMMM Do, YYYY'),
+      todayDay,
       todayBookingsCount: todayCount,
       todayTotalProfit: todayProfit,
       weekBookingsCount: weekCount,
       weekTotalProfit: weekProfit,
       badmintonUpcoming,
       pickleballUpcoming,
-      courts
+      courts,
+      profitChartLabels,
+      profitChartData,
+      todayHourLabels,      // <-- pass labels
+      todayBookingCounts,   // <-- pass counts
     });
   } catch (err) {
     console.error(err);
@@ -183,6 +227,18 @@ app.post('/staff/courts/save', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error saving court');
+  }
+});
+
+app.post('/staff/courts/delete', async (req, res) => {
+  const { courtId } = req.body;
+
+  try {
+    await Court.findByIdAndDelete(courtId);
+    res.redirect('/staff/courts');
+  } catch (err) {
+    console.error('Error deleting court:', err);
+    res.status(500).send('Error deleting court');
   }
 });
 
@@ -305,21 +361,40 @@ app.post('/book', async (req, res) => {
     (endHour < 10 ? '0' : '') + endHour + ':' + (endMinute < 10 ? '0' : '') + endMinute;
 
   try {
-    const totalHoursAgg = await Booking.aggregate([
-      {
-        $match: {
-          date: date,
-          $or: [{ email: email }, { phone: phone }]
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total_hours: { $sum: '$duration' }
-        }
-      }
-    ]);
-    const totalHours = totalHoursAgg[0] ? totalHoursAgg[0].total_hours : 0;
+    // === ADD THIS CHECK ===
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // midnight today
+    const bookingDate = new Date(date);
+    bookingDate.setHours(0, 0, 0, 0);
+
+    if (bookingDate < today) {
+      return res.status(400).send('Cannot book past dates.');
+    }
+    // ======================
+
+    // Build match query depending on email/phone presence
+    let matchQuery = { date: date };
+
+    if (email && phone) {
+      matchQuery.$or = [{ email: email }, { phone: phone }];
+    } else if (email) {
+      matchQuery.email = email;
+    } else if (phone) {
+      matchQuery.phone = phone;
+    } else {
+      // No email or phone provided - skip limit check or handle error here if you want
+      matchQuery = null;
+    }
+
+    let totalHours = 0;
+    if (matchQuery) {
+      const totalHoursAgg = await Booking.aggregate([
+        { $match: matchQuery },
+        { $group: { _id: null, total_hours: { $sum: '$duration' } } }
+      ]);
+      totalHours = totalHoursAgg[0] ? totalHoursAgg[0].total_hours : 0;
+    }
+
     const newTotal = totalHours + parseInt(duration);
 
     if (newTotal > 3) {
