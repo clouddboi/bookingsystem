@@ -25,6 +25,33 @@
 <div class="container mt-4">
 
   <h3 class="mb-4">Manage Bookings</h3>
+  <!-- Trigger Button -->
+  <button class="btn btn-danger mb-3" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+    Delete All Bookings
+  </button>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form method="POST" action="/staff/bookings/delete-all" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-danger">This will permanently delete all bookings.</p>
+          <div class="mb-3">
+            <label for="delete-password" class="form-label">Enter Owner Password</label>
+            <input type="password" class="form-control" name="password" id="delete-password" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <form method="GET" action="/staff/bookings" class="row search-filter-row align-items-end">
     <div class="col-md-3">

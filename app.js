@@ -12,6 +12,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
+const OWNER_DELETE_PASSWORD = process.env.OWNER_DELETE_PASSWORD;
+
 app.use(session({
   secret: 'mySuperSecretKey123!@#',
   resave: false,
@@ -294,6 +296,26 @@ app.get('/staff/bookings', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error loading bookings');
+  }
+});
+
+app.post('/staff/bookings/delete-all', async (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/staff-login');
+  }
+
+  const enteredPassword = req.body.password;
+
+  if (enteredPassword !== OWNER_DELETE_PASSWORD) {
+    return res.status(403).send('Invalid password. Deletion not authorized.');
+  }
+
+  try {
+    await Booking.deleteMany({});
+    res.redirect('/staff/bookings');
+  } catch (err) {
+    console.error('Error deleting all bookings:', err);
+    res.status(500).send('Failed to delete bookings.');
   }
 });
 
